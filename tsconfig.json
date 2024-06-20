@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "target": "es2016",
     "module": "CommonJS",
     "esModuleInterop": true,
