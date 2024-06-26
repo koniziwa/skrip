@@ -1,10 +1,10 @@
-type commandsType = {
+type commandType = {
   command: string
   description: string
   required_status: string[]
 }
 
-const commands: commandsType[] = [
+const commands: commandType[] = [
   {
     command: 'op',
     description: 'Assign {username} an admin role',

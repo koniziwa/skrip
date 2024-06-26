@@ -47,9 +47,7 @@ class CommandsController {
         msg.chat.id,
         `Successfully added ${candidates.join(', ')} to "Users" group ✅`
       )
-    } else {
-      bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
-    }
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
 
   handleOpCommand(
@@ -98,9 +96,45 @@ class CommandsController {
         msg.chat.id,
         `Successfully updated ${candidates.join(', ')} status ✅`
       )
-    } else {
-      bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
+  }
+
+  handleRemoveCommand(
+    bot: TelegramBot,
+    msg: TelegramBot.Message,
+    userRole: string
+  ): void {
+    const candidates = this.#getCandidates(bot, msg)
+    if (candidates.length === 0) return
+
+    if (this.#checkUserRights(userRole, 'remove')) {
+      const prev: userType[] = JSON.parse(
+        readFileSync('./src/config/users.json', 'utf8')
+      )
+      const next = prev.filter(user => !candidates.includes(user.username))
+
+      writeFileSync('./src/config/users.json', JSON.stringify(next))
+
+      bot.sendMessage(
+        msg.chat.id,
+        `Successfully removed ${candidates.join(', ')} from users list ✅`
+      )
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
+  }
+
+  handleOrderCommand(
+    bot: TelegramBot,
+    msg: TelegramBot.Message,
+    userRole: string
+  ): void {
+    if (!msg.text) return
+
+    if (!msg.text.substring(0, msg.text.indexOf(' '))) {
+      bot.sendMessage(msg.chat.id, 'No URL was provided! 🤨')
+      return
     }
+
+    const url = msg.text.substring(msg.text.indexOf(' ') + 1).trim()
   }
 }
 

@@ -42,6 +42,13 @@ bot.on('text', msg => {
       CommandsController.handleAddCommand(bot, msg, userRole)
       break
 
+    case '/remove':
+      CommandsController.handleRemoveCommand(bot, msg, userRole)
+      break
+
+    case '/order':
+      CommandsController.handleOrderCommand(bot, msg, userRole)
+
     default:
       bot.sendMessage(msg.chat.id, 'Invalid command! 🥱')
   }
