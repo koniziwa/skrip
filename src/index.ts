@@ -35,12 +35,16 @@ bot.on('text', msg => {
   const commandsInMessage = msg.text.match(/^\/[a-zA-z]+/)
 
   if (!commandsInMessage) {
-    bot.sendMessage(msg.chat.id, 'Please send me a command ')
+    bot.sendMessage(msg.chat.id, 'Please send me a command 🙏')
     return
   }
   const command = commandsInMessage[0]
 
   switch (command) {
+    case '/users':
+      CommandsController.handleUsersCommand(bot, msg, userRole)
+      break
+
     case '/op':
       CommandsController.handleOpCommand(bot, msg, userRole)
       break
@@ -55,6 +59,18 @@ bot.on('text', msg => {
 
     case '/order':
       CommandsController.handleOrderCommand(bot, msg, userRole)
+      break
+
+    case '/skip':
+      CommandsController.handleSkipCommand(bot, msg, userRole)
+      break
+
+    case '/clear':
+      CommandsController.handleClearCommand(bot, msg, userRole)
+      break
+
+    case '/list':
+      CommandsController.handleListCommand(bot, msg, userRole)
       break
 
     default:

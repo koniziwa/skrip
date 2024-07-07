@@ -25,6 +25,22 @@ class CommandsController {
     return commandInformation.required_status.includes(userRole)
   }
 
+  handleUsersCommand(
+    bot: TelegramBot,
+    msg: TelegramBot.Message,
+    userRole: string
+  ): void {
+    if (this.#checkUserRights(userRole, 'users')) {
+      const users: userType[] = JSON.parse(
+        readFileSync('./src/config/users.json', 'utf8')
+      )
+      const message = users
+        .map(user => `@${user.username} <b>${user.status}</b>`)
+        .join('\n')
+      bot.sendMessage(msg.chat.id, message, { parse_mode: 'HTML' })
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
+  }
+
   handleAddCommand(
     bot: TelegramBot,
     msg: TelegramBot.Message,
@@ -48,7 +64,8 @@ class CommandsController {
       )
       bot.sendMessage(
         msg.chat.id,
-        `Successfully added ${candidates.join(', ')} to "Users" group ✅`
+        `Added <b>${candidates.join(', ')}</b> to "Users" group ✅`,
+        { parse_mode: 'HTML' }
       )
     } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
@@ -97,7 +114,8 @@ class CommandsController {
 
       bot.sendMessage(
         msg.chat.id,
-        `Successfully updated ${candidates.join(', ')} status ✅`
+        `Updated <b>${candidates.join(', ')}</b> status ✅`,
+        { parse_mode: 'HTML' }
       )
     } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
@@ -120,7 +138,8 @@ class CommandsController {
 
       bot.sendMessage(
         msg.chat.id,
-        `Successfully removed ${candidates.join(', ')} from users list ✅`
+        `Removed <b>${candidates.join(', ')}</b> from users list ✅`,
+        { parse_mode: 'HTML' }
       )
     } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
@@ -145,16 +164,66 @@ class CommandsController {
       const foundMusic = musicLibrary.find(obj => obj.url === url)
       if (foundMusic) {
         await Player.addMusicToQueue(foundMusic.filename)
-        bot.sendMessage(msg.chat.id, 'Successfully added to queue!')
+        bot.sendMessage(
+          msg.chat.id,
+          `Added <b>${foundMusic.filename}</b> to queue 💿`,
+          { parse_mode: 'HTML' }
+        )
         return
       }
 
       Downloader.downloadAudio(url)
         .then(async filename => {
           await Player.addMusicToQueue(filename)
-          bot.sendMessage(msg.chat.id, 'Successfully added to queue!')
+          bot.sendMessage(msg.chat.id, `Added <b>${filename}</b> to queue 💿`, {
+            parse_mode: 'HTML',
+          })
         })
         .catch(e => bot.sendMessage(msg.chat.id, e))
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
+  }
+
+  async handleSkipCommand(
+    bot: TelegramBot,
+    msg: TelegramBot.Message,
+    userRole: string
+  ): Promise<void> {
+    if (this.#checkUserRights(userRole, 'skip')) {
+      await Player.skipMusic()
+      bot.sendMessage(msg.chat.id, 'Skipped track ⚡')
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
+  }
+
+  async handleClearCommand(
+    bot: TelegramBot,
+    msg: TelegramBot.Message,
+    userRole: string
+  ): Promise<void> {
+    if (this.#checkUserRights(userRole, 'clear')) {
+      await Player.clearQueue()
+      bot.sendMessage(msg.chat.id, 'Cleaned queue 😋')
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
+  }
+
+  async handleListCommand(
+    bot: TelegramBot,
+    msg: TelegramBot.Message,
+    userRole: string
+  ): Promise<void> {
+    if (this.#checkUserRights(userRole, 'clear')) {
+      const queue = await Player.showQueue()
+      let i = 0
+      const message = queue
+        .map(audio => {
+          i++
+          if (audio.isCurrent)
+            return `<b>[${i}] ${audio.name.slice(0, audio.name.length - 4)}</b>`
+          return `[${i}] ${audio.name}`
+        })
+        .join('\n')
+      bot.sendMessage(msg.chat.id, message, {
+        parse_mode: 'HTML',
+      })
     } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
 }

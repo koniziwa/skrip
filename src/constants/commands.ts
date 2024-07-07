@@ -6,6 +6,11 @@ type commandType = {
 
 const commands: commandType[] = [
   {
+    command: 'users',
+    description: 'Show users & roles',
+    required_status: ['host', 'admin'],
+  },
+  {
     command: 'op',
     description: 'Assign {username} an admin role',
     required_status: ['host'],
@@ -17,12 +22,12 @@ const commands: commandType[] = [
   },
   {
     command: 'remove',
-    description: 'Remove all {username} user privileges',
+    description: 'Remove {username} privileges',
     required_status: ['host', 'admin'],
   },
   {
     command: 'order',
-    description: 'Order track',
+    description: 'Order track with {URL}',
     required_status: ['host', 'admin', 'user'],
   },
   {
@@ -32,8 +37,13 @@ const commands: commandType[] = [
   },
   {
     command: 'clear',
-    description: 'Clear all current queue',
+    description: 'Clear queue',
     required_status: ['host', 'admin'],
+  },
+  {
+    command: 'list',
+    description: 'Show playlist',
+    required_status: ['host', 'admin', 'user'],
   },
 ]
 
