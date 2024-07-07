@@ -2,3 +2,4 @@ node_modules/
 src/private/
 src/config/
 dist/
+collection/

@@ -1,5 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync, mkdirSync } from 'fs'
 
 import CommandsController from './api/CommandsController'
 
@@ -8,6 +8,10 @@ import TELEGRAM_BOT_TOKEN from './private/TELEGRAM_BOT_TOKEN'
 import commands from './constants/commands'
 
 import userType from './types/userType'
+
+if (!existsSync('./collection')) {
+  mkdirSync('./collection')
+}
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true })
 
@@ -30,7 +34,10 @@ bot.on('text', msg => {
 
   const commandsInMessage = msg.text.match(/^\/[a-zA-z]+/)
 
-  if (!commandsInMessage) return
+  if (!commandsInMessage) {
+    bot.sendMessage(msg.chat.id, 'Please send me a command ')
+    return
+  }
   const command = commandsInMessage[0]
 
   switch (command) {
@@ -48,6 +55,7 @@ bot.on('text', msg => {
 
     case '/order':
       CommandsController.handleOrderCommand(bot, msg, userRole)
+      break
 
     default:
       bot.sendMessage(msg.chat.id, 'Invalid command! 🥱')

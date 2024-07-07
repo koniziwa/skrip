@@ -1,9 +1,12 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { readFileSync, writeFileSync } from 'fs'
+import Downloader from './Downloader'
+import Player from './Player'
 
 import commands from '../constants/commands'
 
 import userType from '../types/userType'
+import musicType from '../types/musicType'
 
 class CommandsController {
   #getCandidates(bot: TelegramBot, msg: TelegramBot.Message): string[] {
@@ -122,19 +125,37 @@ class CommandsController {
     } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
 
-  handleOrderCommand(
+  async handleOrderCommand(
     bot: TelegramBot,
     msg: TelegramBot.Message,
     userRole: string
-  ): void {
+  ): Promise<void> {
     if (!msg.text) return
 
-    if (!msg.text.substring(0, msg.text.indexOf(' '))) {
-      bot.sendMessage(msg.chat.id, 'No URL was provided! 🤨')
-      return
-    }
+    if (this.#checkUserRights(userRole, 'order')) {
+      if (!msg.text.substring(0, msg.text.indexOf(' '))) {
+        bot.sendMessage(msg.chat.id, 'No URL was provided! 🤨')
+        return
+      }
 
-    const url = msg.text.substring(msg.text.indexOf(' ') + 1).trim()
+      const url = msg.text.substring(msg.text.indexOf(' ') + 1).trim()
+      const musicLibrary: musicType[] = JSON.parse(
+        readFileSync('./src/config/musicLibrary.json', 'utf8')
+      )
+      const foundMusic = musicLibrary.find(obj => obj.url === url)
+      if (foundMusic) {
+        await Player.addMusicToQueue(foundMusic.filename)
+        bot.sendMessage(msg.chat.id, 'Successfully added to queue!')
+        return
+      }
+
+      Downloader.downloadAudio(url)
+        .then(async filename => {
+          await Player.addMusicToQueue(filename)
+          bot.sendMessage(msg.chat.id, 'Successfully added to queue!')
+        })
+        .catch(e => bot.sendMessage(msg.chat.id, e))
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
 }
 

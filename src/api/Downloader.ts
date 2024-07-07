@@ -1,12 +1,15 @@
 import shell from 'shelljs'
 import ytdl from 'ytdl-core'
 import ffmpeg from 'fluent-ffmpeg'
+import { readFileSync, writeFileSync } from 'fs'
+
+import musicType from '../types/musicType'
 
 class Downloader {
   ffmpegPath = shell.which('ffmpeg')?.stdout
   filenameRegexp = /[\\\/:*?"<>|]/gi
 
-  async downloadAudio(url: string) {
+  async downloadAudio(url: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
       if (!this.ffmpegPath) {
         reject('There is no ffmpeg on server! 😡')
@@ -21,10 +24,19 @@ class Downloader {
           filter: 'audioonly',
         })
 
+        const musicLibrary: musicType[] = JSON.parse(
+          readFileSync('./src/config/musicLibrary.json', 'utf8')
+        )
+        musicLibrary.push({ url, filename })
+        writeFileSync(
+          './src/config/musicLibrary.json',
+          JSON.stringify(musicLibrary)
+        )
+
         ffmpeg(stream)
           .setFfmpegPath(this.ffmpegPath)
           .audioBitrate(128)
-          .saveToFile(`./audio/${filename}.mp3`)
+          .saveToFile(`./collection/${filename}.mp3`)
           .on('end', () => {
             resolve(filename)
           })
