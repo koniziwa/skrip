@@ -7,7 +7,8 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "setup": "node src/setup.mjs"
+    "setup": "node src/setup.mjs",
+    "clear": "node src/clearCache.mjs"
   },
   "devDependencies": {
     "@types/fluent-ffmpeg": "^2.1.24",
