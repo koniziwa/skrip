@@ -6,6 +6,11 @@ type commandType = {
 
 const commands: commandType[] = [
   {
+    command: 'start',
+    description: 'Read about this bot',
+    required_status: ['host', 'admin', 'user'],
+  },
+  {
     command: 'users',
     description: 'Show users & roles',
     required_status: ['host', 'admin'],

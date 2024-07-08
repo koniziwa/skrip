@@ -4,6 +4,7 @@ import Downloader from './Downloader'
 import Player from './Player'
 
 import commands from '../constants/commands'
+import startDescription from '../constants/startDescription'
 
 import userType from '../types/userType'
 import musicType from '../types/musicType'
@@ -23,6 +24,18 @@ class CommandsController {
     const commandInformation = commands.find(c => c.command === command)
     if (!commandInformation) return false
     return commandInformation.required_status.includes(userRole)
+  }
+
+  handleStartCommand(
+    bot: TelegramBot,
+    msg: TelegramBot.Message,
+    userRole: string
+  ) {
+    if (this.#checkUserRights(userRole, 'start')) {
+      bot.sendMessage(msg.chat.id, startDescription, {
+        parse_mode: 'HTML',
+      })
+    } else bot.sendMessage(msg.chat.id, 'You have no rights to do this! 😡')
   }
 
   handleUsersCommand(

@@ -41,6 +41,10 @@ bot.on('text', msg => {
   const command = commandsInMessage[0]
 
   switch (command) {
+    case '/start':
+      CommandsController.handleStartCommand(bot, msg, userRole)
+      break
+
     case '/users':
       CommandsController.handleUsersCommand(bot, msg, userRole)
       break
